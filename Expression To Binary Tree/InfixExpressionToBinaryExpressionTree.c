@@ -1,8 +1,8 @@
-/* 8. Develop and execute a program in C using suitable data structures to create a 
-        binary tree for a expression. The tree traversals in some proper method 
-        should result in conversion of original expression into prefix, infix and 
-        postfix forms. Display the original expression along with the three different
-        forms also. */
+/* 8. Develop and execute a program in C using suitable data structures to create
+       a binary tree for a expression. The tree traversals in some proper method 
+       should result in conversion of original expression into prefix, infix and 
+       postfix forms. Display the original expression along with the three
+       different forms also. */
 
 // Develop and execute a program in C using suitable data structures to create a
 //     binary tree for a expression
@@ -13,7 +13,7 @@
 // The shunting-yard algorithm is a method for parsing mathematical expressions 
 //   specified in infix notation
 // It can produce either a postfix notation string, also known as Reverse Polish 
-//   notation (RPN), or an abstract syntax tree (AST); AST is Binary expression tree
+//   notation (RPN), or abstract syntax tree (AST); AST is Binary expression tree
 
 // The algorithm was invented by Edsger Dijkstra and named the "shunting yard" 
 //   algorithm because its operation resembles that of a railroad shunting yard
@@ -41,7 +41,7 @@ char expression[256]; // Save arithmetic expression
 char operatorStack[128]; // Stack: holds arithmetic operators
 int  operatorStackTop = -1;
 
-struct node* outputStack[128]; // Nodes / tree of Operands or sub expressions address
+struct node* outputStack[128];//Nodes/tree of Operands or sub expressions address
 int    outputStackTop = -1;
 
 /* Suppose a function buildExpression() is : 
@@ -63,17 +63,17 @@ int    outputStackTop = -1;
           push it onto the operator stack
 
        if the token is a right bracket ")", then:
-          while the operator at the top of the operator stack is not a left bracket:
+          while the operator at the top of the operator stack is not a "(" :
               buildExpression()
 
-          pop the left bracket from the stack
+          then pop the left bracket from the stack
 
        if the token is an operator, then:
-
-          while there is an operator at the top of the operator stack with >= precedence :
-                 buildExpression()
+          while there is an operator at the top of the operator stack
+                with >= precedence :
+                   buildExpression()
                   
-          push the read operator onto the operator stack
+          then push the read operator onto the operator stack
 
        if the stack runs out without finding a left bracket, then there are
           mismatched parentheses , input is invalid arithmetic expression
@@ -86,8 +86,8 @@ int    outputStackTop = -1;
 
            else buildExpression()
 
-   pop from output stack, return this result
-   which is the address of root element of expression tree */
+   then pop from output stack, return this result
+   which will be the address of root element of expression tree */
 	
 // Assumption : Input is valid arithmetic expression
 //              Operators can be + - * or /
@@ -104,8 +104,8 @@ struct node* createNode(char value)
    return newNode;
  }
 
-void pushIntoOutputStack ( struct node *newNode ) // Push address of result tree with 
- { // operator as root and subexpressions/operands as children onto output stack
+void pushIntoOutputStack ( struct node *newNode )//Push address of result tree  
+ {//with operator as root, subexpressions/operands as children on output stack
    outputStack [ ++outputStackTop ] = newNode ;
  }
 
@@ -126,7 +126,7 @@ char popFromOperatorStack() // pop operator from operator stack
 
 void buildExpression() // build expression tree with operator from operator stack
  { // and results from output stack
-   char operation = popFromOperatorStack(); // op = pop operator from the operator stack
+   char operation = popFromOperatorStack();//op= pop from the operator stack
    struct node *subExp2 = popFromOutputStack(); // subExp2 = pop from output stack
    struct node *subExp1 = popFromOutputStack(); // subExp1 = pop from output stack
    
@@ -139,13 +139,13 @@ void buildExpression() // build expression tree with operator from operator stac
 
 void printErrorMessage()
  {
-   printf("\n Invalid Expression , Expression should have single character"); 
-   printf(" or digit operand and + - * / as operators\n");
+   printf("\n Invalid Expression or Expression should have single character"); 
+   printf(" or digit operand or + - * / as operators\n");
  }
 
 int precedence( char operation ) // return precedence of operators
  { // why give '(' open parenthesis lesser precedence in program implementation ?
-   switch (operation) 
+   switch (operation) // but in BODMAS, Bracket has highest precedence
     {
       case '(': return 0;
       case '+':
@@ -167,11 +167,11 @@ struct node* infixToBinaryTree( char *expression ) // return address of binary t
          pushIntoOutputStack ( createNode( expression[i] ) ) ;          
       else if ( expression[i] == '(' ) // if the token is a left bracket "(", then:
          pushIntoOperatorStack( expression[i] ); // push it onto the operator stack
-      else if ( expression[i] == ')' ) // if the token is a right bracket ")", then:
+      else if ( expression[i] == ')' )//if the token is a right bracket ")", then:
        { 
-         int j = operatorStackTop; // while the operator at the top of the operator 
-         while ( operatorStack[j] != '(' && j >= 0 ) // stack is not a left bracket:
-          {
+         int j = operatorStackTop;
+         while ( operatorStack[j] != '(' && j >= 0 )//while the operator at the top
+          { //  of the operator stack is not a left bracket:
             buildExpression();
             j--;
           } // if( j < 0 ) { printErrorMessage(); exit(1); }
@@ -179,13 +179,13 @@ struct node* infixToBinaryTree( char *expression ) // return address of binary t
        }
       else if ( expression[i] == '+' || expression[i] == '-' || 
                 expression[i] == '*' || expression[i] == '/'    )
-       { // if the token is an operator, then:
-         while ( precedence( operatorStack[operatorStackTop] ) 
-                 >= precedence( expression[i] ) ) // while there is an operator at
-          // the top of the operator stack with >= precedence :
+       { // if the token is an operator, then: check if operatorStackTop is valid 
+         while ( operatorStackTop != -1 && // and while there is operator at top
+                 precedence( operatorStack[operatorStackTop] ) >= // of operator
+                   precedence( expression[i] ) ) // stack with >= precedence : then
             buildExpression();
          
-         pushIntoOperatorStack( expression[i] ); // push the read operator onto the operator stack
+         pushIntoOperatorStack(expression[i]);//push read operator on operatorStack
        }
       else
        { 
@@ -196,8 +196,15 @@ struct node* infixToBinaryTree( char *expression ) // return address of binary t
    // if there are no more tokens to read: 
    while ( operatorStackTop != -1 ) // while there are still operator tokens    
       buildExpression();            //  on the operator stack: build expression
-  
-   return ( popFromOutputStack() ); // pop from output stack, return result address
+
+   if( outputStackTop == 0 )//if expression is valid, then only expression tree's 
+    { // root address will be on stack
+      return ( popFromOutputStack() );//pop from output stack, return resultAddress
+    }
+   else
+    { 
+      printErrorMessage(); exit(1);
+    }
  }
 
 void preOrder(struct node *root) // The tree traversals in some proper method should 
@@ -238,8 +245,8 @@ int main()
 
    struct node *ast = infixToBinaryTree( expression );
 
-   printf("\n Original expression = %s\n", expression); // Display original expression
-
+   printf("\n Original expression = %s\n", expression); 
+   // Display original expression
    printf("\n Prefix = "); // along with the three different forms also
    preOrder(ast); 
 
@@ -254,9 +261,7 @@ int main()
 /* Output : 
  Expression should have single character or digit as operand and + - * / operators
  Enter valid arithmetic expression : (a + b * c) + ((d * e + f ) * g)
-
  Original expression = (a + b * c) + ((d * e + f ) * g)
-
  Prefix = + + a * b c * + * d e f g 
  Infix = a + b * c + d * e + f * g 
  Postfix = a b c * + d e * f + g * +  
